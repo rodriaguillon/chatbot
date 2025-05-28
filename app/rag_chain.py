@@ -11,7 +11,7 @@ def build_rag_chain():
     splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
     docs = splitter.split_documents(documents)
 
-    ollama_url = "https://7556-2800-a4-c057-3200-f3ae-4591-59bc-552c.ngrok-free.app"
+    ollama_url = "https://900a-2800-a4-c057-3200-f3ae-4591-59bc-552c.ngrok-free.app"
 
     embeddings = OllamaEmbeddings(model="llama2", base_url=ollama_url)
     llm = OllamaLLM(model="llama2", base_url=ollama_url)

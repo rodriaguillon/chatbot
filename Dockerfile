@@ -3,13 +3,11 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Instalamos dependencias del sistema necesarias para faiss
 RUN apt-get update && apt-get install -y \
     build-essential \
     libomp-dev \
  && rm -rf /var/lib/apt/lists/*
 
-# Instalamos dependencias de Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt \
  && pip install faiss-cpu
