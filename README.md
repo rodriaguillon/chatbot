@@ -22,5 +22,3 @@ curl -X POST http://localhost:8000/chat \
      -H "Content-Type: application/json" \
      -d '{"query": "What services does Promtior offer?"}'
 ```
-
-# chatbot
