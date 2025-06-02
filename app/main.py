@@ -30,8 +30,6 @@ def chat_lambda(x):
         return {"error": "Invalid input. Expecting a JSON body with a 'query' string."}
     try:
         response = rag_chain.run(x["query"])
-        if isinstance(response, dict) and "output" in response:
-            return response["output"]
         return response
     except Exception as e:
         print(f"Error in rag_chain.run: {str(e)}")
