@@ -8,10 +8,15 @@ from app.rag_chain import build_rag_chain
 app = FastAPI()
 
 try:
+    print("Intentando inicializar rag_chain...")
     rag_chain = build_rag_chain()
+    print("rag_chain inicializado correctamente.")
 except Exception as e:
-    print(f"Error building RAG chain: {str(e)}")
+    import traceback
+    print("Error building RAG chain:", e)
+    traceback.print_exc()
     rag_chain = None
+
 
 class ChatInput(BaseModel):
     query: str
