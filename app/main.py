@@ -25,13 +25,13 @@ def chat_lambda(x):
     if rag_chain is None:
         print("RAG chain was not initialized correctly.")
         return {"error": "Internal server error: the chatbot backend failed to initialize."}
-
     if not isinstance(x, dict) or "query" not in x or not isinstance(x["query"], str):
         print(f"Invalid input: {x}")
         return {"error": "Invalid input. Expecting a JSON body with a 'query' string."}
-
     try:
         response = rag_chain.run(x["query"])
+        if isinstance(response, dict) and "output" in response:
+            return response["output"]
         return response
     except Exception as e:
         print(f"Error in rag_chain.run: {str(e)}")
