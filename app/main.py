@@ -7,7 +7,6 @@ from app.rag_chain import build_rag_chain
 
 app = FastAPI()
 
-# Handle errors when building the rag_chain
 try:
     rag_chain = build_rag_chain()
 except Exception as e:
@@ -18,12 +17,10 @@ class ChatInput(BaseModel):
     query: str
 
 def chat_lambda(x):
-    # Check that rag_chain is properly loaded
     if rag_chain is None:
         print("RAG chain was not initialized correctly.")
         return {"error": "Internal server error: the chatbot backend failed to initialize."}
 
-    # Validate input structure explicitly (defensive)
     if not isinstance(x, dict) or "query" not in x or not isinstance(x["query"], str):
         print(f"Invalid input: {x}")
         return {"error": "Invalid input. Expecting a JSON body with a 'query' string."}
@@ -37,7 +34,6 @@ def chat_lambda(x):
 
 typed_chain = RunnableLambda(chat_lambda).with_types(input_type=ChatInput)
 
-# Middleware: catch all unhandled exceptions and return as JSON
 @app.middleware("http")
 async def catch_exceptions_middleware(request: Request, call_next):
     try:
