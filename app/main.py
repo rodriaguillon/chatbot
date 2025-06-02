@@ -14,4 +14,4 @@ class ChatInput(BaseModel):
 
 typed_chain = RunnableLambda(lambda x: rag_chain.run(x["query"])).with_types(input_type=ChatInput)
 
-add_routes(app, typed_chain, path="/chat", playground_type="default")
+add_routes(app, typed_chain, path="/chat")

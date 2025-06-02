@@ -1,7 +1,8 @@
 fastapi
 uvicorn
 langchain
+langserve
+python-dotenv
+openai
+langchain-openai
 langchain-community
-ollama
-langserve[all]
-langchain-ollama
