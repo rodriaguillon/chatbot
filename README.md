@@ -21,8 +21,8 @@ This project implements a conversational assistant capable of answering question
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/rodriaguillon/promtior-chatbot.git
-cd promtior-chatbot
+git clone https://github.com/rodriaguillon/chatbot.git
+cd chatbot
 ````
 
 ### 2. Install dependencies
