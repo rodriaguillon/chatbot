@@ -5,11 +5,14 @@ from langserve import add_routes
 from langchain_core.runnables import RunnableLambda
 from app.rag_chain import build_rag_chain
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción deberías restringir esto
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -58,3 +61,9 @@ async def catch_exceptions_middleware(request: Request, call_next):
         return JSONResponse(status_code=500, content={"error": "Internal server error."})
 
 add_routes(app, typed_chain, path="/chat")
+
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
+
+@app.get("/")
+async def serve_index():
+    return FileResponse(os.path.join("frontend", "index.html"))
