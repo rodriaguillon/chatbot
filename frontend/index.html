@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Promtior Chatbot</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Roboto, sans-serif;
+      background: #f4f7fc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      max-width: 600px;
+      width: 90%;
+      text-align: center;
+    }
+
+    h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    }
+
+    .rocket {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fly 2s infinite ease-in-out;
+    font-size: 1.5rem;
+    }
+
+    .flame {
+    font-size: 1.2rem;
+    animation: flicker 0.2s infinite;
+    }
+
+    @keyframes flicker {
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    @keyframes fly {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+    }
+
+
+    .input-group {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    input[type="text"] {
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      width: 70%;
+      min-width: 200px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    input[type="text"]:focus {
+      border-color: #6c63ff;
+      box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+    }
+
+    button {
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      background-color: #6c63ff;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #554be2;
+    }
+
+    #response {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background-color: #f0f2f5;
+      border-radius: 0.75rem;
+      text-align: left;
+      line-height: 1.5;
+      color: #333;
+      font-size: 1rem;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+      white-space: pre-wrap;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>
+    Promtior Chatbot
+    <span class="rocket">🚀</span>
+    </h1>
+    <div class="input-group">
+      <input type="text" id="query" placeholder="Type your question here" />
+      <button onclick="ask()">Send</button>
+    </div>
+    <div id="response"></div>
+  </div>
+
+  <script>
+    async function ask() {
+        const queryInput = document.getElementById("query");
+        const responseDiv = document.getElementById("response");
+        const query = queryInput.value.trim();
+
+        responseDiv.innerText = "";
+
+        if (!query) {
+        responseDiv.innerText = "Please enter a question before sending.";
+        return;
+        }
+
+        try {
+        const res = await fetch("https://chatbot-production-d290.up.railway.app/chat/invoke", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ input: { query } })
+        });
+
+        if (!res.ok) {
+            const error = await res.json();
+            responseDiv.innerText = "Server Error: " + (error.error || res.statusText);
+            return;
+        }
+
+        const data = await res.json();
+        responseDiv.innerText = data.output || "No response received.";
+        } catch (err) {
+        responseDiv.innerText = "Network error: " + err.message;
+        }
+    }
+    </script>
+</body>
+</html>

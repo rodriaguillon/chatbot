@@ -4,8 +4,16 @@ from pydantic import BaseModel, ValidationError
 from langserve import add_routes
 from langchain_core.runnables import RunnableLambda
 from app.rag_chain import build_rag_chain
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # En producción deberías restringir esto
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 try:
     print("Intentando inicializar rag_chain...")

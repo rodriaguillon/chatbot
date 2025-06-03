@@ -9,12 +9,10 @@ from langchain.chains import RetrievalQA
 
 def build_rag_chain():
     try:
-        # Check for OpenAI API key
         openai_key = os.getenv("OPENAI_API_KEY")
         if not openai_key:
             raise EnvironmentError("OPENAI_API_KEY environment variable not found.")
 
-        # Check if the file exists before loading
         data_path = "data/promtior_content.txt"
         if not os.path.exists(data_path):
             raise FileNotFoundError(f"File not found: {data_path}")
