@@ -21,7 +21,7 @@ This project implements a conversational assistant capable of answering question
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/promtior-chatbot.git
+git clone https://github.com/rodriaguillon/promtior-chatbot.git
 cd promtior-chatbot
 ````
 
@@ -75,10 +75,10 @@ requirements.txt
 
 The full logic of how the backend builds and executes the RAG chain is illustrated below:
 
-![Backend Process Flow](docs/backend-process-flow.png)
+![Backend Process Flow](doc/Backend-flow.drawio.png)
 
 ---
 
 ## Technical Documentation
 
-A detailed description of the architecture, design decisions, and implementation challenges is available in [`OVERVIEW.md`](./OVERVIEW.md).
+A detailed description of the architecture, design decisions, and implementation challenges is available in [`documentation.md`](doc/documentation.md).
