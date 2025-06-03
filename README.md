@@ -1,4 +1,4 @@
-# Promtior Chatbot (FastAPI + LangChain)
+# Promtior Chatbot
 
 This project implements a conversational assistant capable of answering questions about Promtior using a Retrieval-Augmented Generation (RAG) architecture. The knowledge source is a simple text file, and the entire solution (frontend + backend) is served from a single FastAPI application.
 
