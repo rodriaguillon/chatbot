@@ -1,41 +1,89 @@
-## Overview del Proyecto
+## Project Overview
 
-### Enfoque y Solución
+### Approach and Solution
 
-La idea era armar un chatbot que pudiera responder preguntas sobre Promtior usando un archivo de texto como fuente. Nada de bases de datos, solo un `.txt` bien cargado. Para eso, usé **FastAPI** como backend liviano y performante, y **LangChain** para implementar la lógica RAG (Retrieval-Augmented Generation), conectando todo con los modelos de OpenAI.
+The objective of this project was to build a conversational assistant capable of answering questions about Promtior, using a `.txt` file as its data source. The solution needed to be lightweight, decoupled, and scalable. To achieve this, a backend was implemented using FastAPI, combined with LangChain to handle the retrieval and generation of responses through a Retrieval-Augmented Generation (RAG) architecture. A functional frontend was also developed using plain HTML and JavaScript.
 
-La API quedó deployada en **Railway** y acepta requests POST en el endpoint `/chat/invoke`. El flujo es simple y sólido:
+The entire solution is encapsulated within a single FastAPI application, which simplifies deployment and allows for a fully integrated backend and frontend experience.
 
-* Se carga el contenido del archivo `promtior_content.txt`.
-* Se divide en chunks con `RecursiveCharacterTextSplitter`.
-* Se genera un índice FAISS con embeddings de OpenAI.
-* Se construye un RAG chain usando `RetrievalQA` y `ChatOpenAI`.
-* Finalmente, cuando llega una query, se busca la info relevante y se genera la respuesta.
+### System Flow
 
-Todo está pensado para que el sistema sea desacoplado: mañana cambiás el origen de datos (por ejemplo scraping o una base) y no tenés que tocar el core de la app.
+1. The user accesses the chatbot through the browser at the root route (`/`).
+2. The frontend sends a POST request to the `/chat/invoke` endpoint with the user's question.
+3. FastAPI receives the request, validates the input, and passes it to the RAG chain.
+4. The RAG chain:
+
+   * Retrieves the most relevant chunks from the `.txt` file using OpenAI embeddings and a FAISS index.
+   * Generates a contextual response using the ChatOpenAI model (GPT-3.5).
+5. The response is returned to the frontend and displayed to the user.
+
+### Technical Components
+
+* FastAPI: the main backend framework, lightweight, asynchronous, and modern.
+* LangChain: used to orchestrate the retrieval and generation logic.
+* FAISS: vector search engine to retrieve relevant document chunks.
+* OpenAI: integrated with GPT-3.5 for natural language generation.
+* Frontend: built with HTML, CSS, and vanilla JavaScript, served directly by FastAPI via StaticFiles.
+
+### Project Structure
+
+```
+app/
+├── main.py              # Application entry point and configuration
+├── config.py            # CORS setup and environment variables
+├── rag_chain.py         # RAG chain builder
+├── handlers.py          # Lambda logic and input validation
+├── middlewares.py       # Global error handling
+├── routes.py            # Frontend and static file routes
+frontend/
+└── index.html           # User interface
+data/
+└── promtior_content.txt # Knowledge base
+Dockerfile               # Unified container for frontend and backend
+requirements.txt         # Project dependencies
+```
+
+### Best Practices and Design Considerations
+
+* Early validation was implemented for the API key, data file existence, and FAISS index creation.
+* Input is strictly typed using Pydantic and wrapped in a RunnableLambda to prevent malformed requests.
+* The system is modularized, allowing for extensions or changes without compromising the architecture.
+* The frontend is fully integrated with the backend, and CORS is enabled to support both local development and deployment scenarios.
+* The entire solution runs in a single Docker container, simplifying deployment across environments.
+
+### Scalability
+
+While the current implementation uses a static `.txt` file as the data source, the architecture is ready to scale to other sources such as databases, cloud storage, or web scraping. Its modular design allows core components to be replaced or extended without disrupting the system.
+
+The solution is Dockerized and ready to be deployed on platforms such as Railway, serverless environments, or any container-based infrastructure.
 
 ---
 
-### Dificultades Técnicas (y cómo las resolví)
+## Challenges Faced
 
-#### 1. **Validaciones tempranas para no sufrir dificultades más tarde**
+During development, several technical challenges were encountered and addressed to ensure a stable, scalable, and well-structured implementation.
 
-Una de las primeras necesidades fue asegurarme de que el entorno estuviera bien configurado desde el arranque. Validé si estaba seteada la `OPENAI_API_KEY`, si existía el archivo con los datos, y si FAISS no tiraba errores al indexar. Es preferible que explote de entrada con un mensaje claro antes que andar debuggeando a ciegas más adelante, sobre todo en entornos cloud donde a veces falta algo y ni te das cuenta.
+**1. Integrating the frontend and backend in a single server**
 
-#### 2. **Manejo fino del input con tipado**
+Initially, the frontend was served separately using a local development server (`python -m http.server`). This approach made testing and deployment more cumbersome, especially in environments like Railway, which expect self-contained applications.
+The solution was to integrate the HTML directly into the FastAPI app using `StaticFiles` to serve static assets and a dedicated route to return `index.html`. This significantly simplified the deployment pipeline and allowed everything to live within a single container.
 
-Para evitar que el backend reciba cualquier cosa, encapsulé la lógica en un `RunnableLambda` y le puse tipado con `pydantic`. Así, si el frontend envia algo sin sentido, el middleware devuelve un error bien formado.
+**2. CORS and local communication between frontend and backend**
 
-#### 3. **Código limpio y modular**
+While testing locally, CORS errors occurred when the frontend running on `localhost:3000` attempted to fetch data from the backend at `localhost:8000`. This was resolved by adding the FastAPI CORS middleware with a permissive development setup (`allow_origins=["*"]`). The configuration can be tightened in production as needed.
 
-Toda la lógica de la cadena RAG vive en `rag_chain.py`, desacoplando la lógica de `main.py`. Esto hace que el código sea más legible y más fácil de testear o escalar en el futuro (por ejemplo, si quiero levantar otro endpoint o cambiar el LLM, no tengo que andar refactorizando todo).
+**3. Ensuring robustness in error handling**
 
----
+A key objective was to detect and report critical errors early in the application lifecycle. Early validations were added for:
 
-### Pensando a futuro (escalabilidad)
+* Missing `OPENAI_API_KEY`
+* Missing or empty data file
+* Errors during FAISS index creation
+* Errors during RAG chain initialization
 
-Aunque hoy trabaja sobre un txt, está preparado para algo más profesional:
+These checks are performed during startup, allowing failures to surface immediately and reducing the likelihood of runtime issues.
 
-* Se puede hacer que `TextLoader` reciba otra fuente (web scraping, S3, base de datos, etc.).
-* Se puede agregar auth o rate limiting al endpoint `/chat/invoke` sin problema.
-* Ya hay `Dockerfile`, así que lo podes tirar a cualquier contenedor o serverless sin cambiar nada.
+**4. Structuring backend responses for frontend consumption**
+
+While integrating the frontend with LangServe, it became clear that requests needed to be wrapped in an `input` key to match the expected format. Moreover, the backend response included metadata not relevant to the user. The solution involved extracting only the `output` field and displaying clear messages for errors or missing responses to improve the user experience.
+

@@ -8,7 +8,6 @@ from langchain.chains import RetrievalQA
 
 load_dotenv()
 
-
 def build_rag_chain():
     try:
         openai_key = os.getenv("OPENAI_API_KEY")
